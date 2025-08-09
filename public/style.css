@@ -1,100 +1,101 @@
-/* Base layout */
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f9f9f9;
-  color: #333;
+/* ===== Base ===== */
+:root{
+  --blue:#0d6efd;
+  --text:#222;
+  --muted:#6c757d;
+  --card:#fff;
+  --border:#e6e8ec;
 }
 
-/* Category headings */
-.category-header {
-  margin-top: 30px;
-  font-size: 1.4rem;
-  color: #222;
-  border-bottom: 2px solid #ccc;
-  padding-bottom: 5px;
+html,body{
+  margin:0;
+  background:#f8f9fa;
+  color:var(--text);
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size:17px;           /* bigger base */
+  line-height:1.5;
 }
 
-/* Empty category text */
-.no-results {
-  font-style: italic;
-  color: #777;
-  margin: 10px 0 20px 0;
+/* ===== Header ===== */
+header{
+  background:var(--blue);
+  color:#fff;
+  padding:28px 16px;
+  text-align:center;
+}
+header h1{ margin:0 0 6px; font-size:2rem; }
+header p{ margin:0; opacity:.95; }
+
+/* ===== Page width ===== */
+main{ max-width:1200px; margin:24px auto; padding:0 16px; }
+
+/* ===== Form ===== */
+#finderForm{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  box-shadow:0 2px 6px rgba(0,0,0,.04);
+  margin-bottom:18px;
 }
 
-/* Product grid */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 15px;
+#finderForm label{ font-weight:600; margin-top:10px; }
+#finderForm input, #finderForm textarea{
+  width:100%; padding:12px 14px;
+  border:1px solid #ccd1d6; border-radius:8px; background:#fff;
+  font-size:16px;
+}
+#finderForm button{
+  margin-top:12px; width:100%;
+  padding:12px 16px; font-weight:700; font-size:16px;
+  background:var(--blue); color:#fff; border:none; border-radius:8px;
+  cursor:pointer;
+}
+#finderForm button:hover{ filter:brightness(.95); }
+
+/* ===== Category headings ===== */
+.category-header{
+  margin:22px 0 10px; font-size:1.25rem; font-weight:700;
+  border-bottom:2px solid var(--border); padding-bottom:6px;
 }
 
-/* Product card */
-.product-card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  padding: 15px;
-  transition: box-shadow 0.2s ease;
+/* ===== Grid ===== */
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); /* wider cards */
+  gap:14px;
 }
 
-.product-card:hover {
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+/* ===== Card with thumbnail ===== */
+.product-card{
+  display:flex; gap:12px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);
+  transition:box-shadow .15s ease;
+}
+.product-card:hover{ box-shadow:0 4px 12px rgba(0,0,0,.08); }
+
+/* Thumbnail */
+.product-thumb{
+  width:88px; height:88px; flex:0 0 88px;
+  border-radius:8px; object-fit:cover; background:#f1f3f5;
+  border:1px solid var(--border);
 }
 
-/* Product title */
-.product-title {
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  color: #0073aa;
+/* Title & meta */
+.product-title{
+  margin:0 0 6px; font-size:1.05rem; color:#0d6efd;
 }
-
-/* Meta info */
-.product-meta {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 10px;
-}
+.product-meta{ font-size:.92rem; color:var(--muted); margin-bottom:6px; }
 
 /* Links */
-.product-links a {
-  color: #0066cc;
-  text-decoration: none;
+.product-links a{
+  color:#0d6efd; text-decoration:none; font-weight:600;
 }
+.product-links a:hover{ text-decoration:underline; }
 
-.product-links a:hover {
-  text-decoration: underline;
-}
-
-/* Form styling */
-#finderForm {
-  background: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  margin-bottom: 20px;
-}
-
-#finderForm input,
-#finderForm textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-#finderForm button {
-  background: #0073aa;
-  color: white;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#finderForm button:hover {
-  background: #005f87;
-}
+/* Empty text */
+.no-results{ color:var(--muted); font-style:italic; margin:6px 0 14px; }
