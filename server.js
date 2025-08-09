@@ -3,7 +3,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import searchRoute from "./lib/routes/search.js";
+import searchRoute from "./lib/lib/routes/search.js";
 
 
 config();
