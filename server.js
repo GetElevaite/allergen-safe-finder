@@ -7,18 +7,22 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Serve static files from /public
+app.use(express.json());
+
+// Serve static files from public/
 app.use(express.static(path.join(__dirname, "public")));
 
-// API routes here...
-// app.use("/api/search", searchRoute);
+// ==== API ROUTES ====
+// Example — replace with your actual routes
+import searchRoutes from "./lib/routes/search.js";
+app.use("/api/search", searchRoutes);
 
-// Fallback to index.html for the main page
+// ==== FRONTEND FALLBACK ====
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Listen on Render's provided port
+// ==== START SERVER ====
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
