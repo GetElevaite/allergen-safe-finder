@@ -2,46 +2,67 @@
 const form = document.getElementById("finderForm");
 const resultsEl = document.getElementById("results");
 
-function el(tag, cls){ const e = document.createElement(tag); if(cls) e.className = cls; return e; }
+function el(tag, cls) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  return e;
+}
 
-function render(results){
+function render(results) {
   resultsEl.innerHTML = "";
-  for (const group of results){
-    const h3 = el("h3"); h3.textContent = group.category;
+  
+  for (const group of results) {
+    const h3 = el("h3", "category-header");
+    h3.textContent = group.category;
     resultsEl.appendChild(h3);
 
-    if (!group.items?.length){
-      const p = el("p"); p.textContent = "No items passed ingredient screening.";
+    if (!group.items?.length) {
+      const p = el("p", "no-results");
+      p.textContent = "No items passed ingredient screening.";
       resultsEl.appendChild(p);
       continue;
     }
 
-    for (const it of group.items){
-      const card = el("div","product");
-      const title = el("h4"); title.textContent = it.name;
-      const meta = el("div","rating");
+    const grid = el("div", "product-grid");
+
+    for (const it of group.items) {
+      const card = el("div", "product-card");
+
+      // Product title
+      const title = el("h4", "product-title");
+      title.textContent = it.name;
+
+      // Meta info: rating, reviews, price
+      const meta = el("div", "product-meta");
       const rating = it.rating ? `${it.rating.toFixed(1)}★` : "Unrated";
       const reviews = it.reviews ? ` • ${it.reviews} reviews` : "";
       const price = it.price ? ` • $${it.price}` : "";
       meta.textContent = `${rating}${reviews}${price}`;
 
-      const links = el("div","links");
-      const mk = (href,text) => {
-        if(!href) return null;
+      // Links
+      const links = el("div", "product-links");
+      const mk = (href, text) => {
+        if (!href) return null;
         const a = document.createElement("a");
-        a.href = href; a.target = "_blank"; a.rel = "noopener";
+        a.href = href;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
         a.textContent = text;
         return a;
       };
       const a1 = mk(it.links?.manufacturer, "Manufacturer");
       const a2 = mk(it.links?.primary, "Retailer");
-      if (a1){ links.appendChild(a1); }
-      if (a1 && a2){ links.appendChild(document.createTextNode(" · ")); }
-      if (a2){ links.appendChild(a2); }
 
+      if (a1) links.appendChild(a1);
+      if (a1 && a2) links.appendChild(document.createTextNode(" | "));
+      if (a2) links.appendChild(a2);
+
+      // Assemble card
       card.append(title, meta, links);
-      resultsEl.appendChild(card);
+      grid.appendChild(card);
     }
+
+    resultsEl.appendChild(grid);
   }
 }
 
@@ -50,24 +71,26 @@ form.addEventListener("submit", async (e) => {
   resultsEl.textContent = "Searching…";
 
   const allergens = (document.getElementById("allergens").value || "")
-    .split(",").map(s=>s.trim()).filter(Boolean);
+    .split(",").map(s => s.trim()).filter(Boolean);
   const categories = (document.getElementById("categories").value || "")
-    .split(",").map(s=>s.trim()).filter(Boolean);
+    .split(",").map(s => s.trim()).filter(Boolean);
   const notes = (document.getElementById("notes").value || "").trim();
   const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
   const purchase_sites = (document.getElementById("retailers")?.value || "")
-    .split(",").map(s=>s.trim()).filter(Boolean);
+    .split(",").map(s => s.trim()).filter(Boolean);
 
   const r = await fetch("/api/search", {
     method: "POST",
-    headers: { "Content-Type":"application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ allergens, categories, notes, rating_floor, purchase_sites })
   });
 
-  const data = await r.json().catch(()=>({ ok:false, error:"Bad JSON" }));
-  if (!data.ok){ resultsEl.textContent = data.error || "Search failed."; return; }
+  const data = await r.json().catch(() => ({ ok: false, error: "Bad JSON" }));
+  if (!data.ok) {
+    resultsEl.textContent = data.error || "Search failed.";
+    return;
+  }
 
   render(data.results || []);
 });
 </script>
-
