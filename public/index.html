@@ -2,71 +2,89 @@
 const form = document.getElementById("finderForm");
 const resultsEl = document.getElementById("results");
 
-function el(tag, cls) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  return e;
+/**
+ * Create an element with optional class(es)
+ */
+function createEl(tag, cls) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  return el;
 }
 
-function render(results) {
+/**
+ * Create an anchor tag with safety attributes
+ */
+function createLink(href, text) {
+  if (!href) return null;
+  const a = document.createElement("a");
+  a.href = href;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.textContent = text;
+  return a;
+}
+
+/**
+ * Render product search results
+ */
+function renderResults(results) {
   resultsEl.innerHTML = "";
-  
-  for (const group of results) {
-    const h3 = el("h3", "category-header");
-    h3.textContent = group.category;
+
+  results.forEach(group => {
+    // Category heading
+    const h3 = createEl("h3", "category-header");
+    h3.textContent = group.category || "Uncategorized";
     resultsEl.appendChild(h3);
 
-    if (!group.items?.length) {
-      const p = el("p", "no-results");
+    // Handle empty category
+    if (!Array.isArray(group.items) || group.items.length === 0) {
+      const p = createEl("p", "no-results");
       p.textContent = "No items passed ingredient screening.";
       resultsEl.appendChild(p);
-      continue;
+      return;
     }
 
-    const grid = el("div", "product-grid");
+    // Product grid
+    const grid = createEl("div", "product-grid");
 
-    for (const it of group.items) {
-      const card = el("div", "product-card");
+    group.items.forEach(item => {
+      const card = createEl("div", "product-card");
 
-      // Product title
-      const title = el("h4", "product-title");
-      title.textContent = it.name;
+      // Title
+      const title = createEl("h4", "product-title");
+      title.textContent = item.name || "Unnamed Product";
 
-      // Meta info: rating, reviews, price
-      const meta = el("div", "product-meta");
-      const rating = it.rating ? `${it.rating.toFixed(1)}★` : "Unrated";
-      const reviews = it.reviews ? ` • ${it.reviews} reviews` : "";
-      const price = it.price ? ` • $${it.price}` : "";
+      // Meta info
+      const meta = createEl("div", "product-meta");
+      const rating = item.rating ? `${item.rating.toFixed(1)}★` : "Unrated";
+      const reviews = item.reviews ? ` • ${item.reviews} reviews` : "";
+      const price = item.price ? ` • $${item.price}` : "";
       meta.textContent = `${rating}${reviews}${price}`;
 
       // Links
-      const links = el("div", "product-links");
-      const mk = (href, text) => {
-        if (!href) return null;
-        const a = document.createElement("a");
-        a.href = href;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.textContent = text;
-        return a;
-      };
-      const a1 = mk(it.links?.manufacturer, "Manufacturer");
-      const a2 = mk(it.links?.primary, "Retailer");
+      const linksContainer = createEl("div", "product-links");
+      const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
+      const retailerLink = createLink(item.links?.primary, "Retailer");
 
-      if (a1) links.appendChild(a1);
-      if (a1 && a2) links.appendChild(document.createTextNode(" | "));
-      if (a2) links.appendChild(a2);
+      if (manufacturerLink) linksContainer.appendChild(manufacturerLink);
+      if (manufacturerLink && retailerLink) {
+        linksContainer.appendChild(document.createTextNode(" | "));
+      }
+      if (retailerLink) linksContainer.appendChild(retailerLink);
 
-      // Assemble card
-      card.append(title, meta, links);
+      // Assemble
+      card.append(title, meta, linksContainer);
       grid.appendChild(card);
-    }
+    });
 
     resultsEl.appendChild(grid);
-  }
+  });
 }
 
-form.addEventListener("submit", async (e) => {
+/**
+ * Form submit handler
+ */
+form.addEventListener("submit", async e => {
   e.preventDefault();
   resultsEl.textContent = "Searching…";
 
@@ -79,18 +97,29 @@ form.addEventListener("submit", async (e) => {
   const purchase_sites = (document.getElementById("retailers")?.value || "")
     .split(",").map(s => s.trim()).filter(Boolean);
 
-  const r = await fetch("/api/search", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ allergens, categories, notes, rating_floor, purchase_sites })
-  });
+  try {
+    const response = await fetch("/api/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        allergens,
+        categories,
+        notes,
+        rating_floor,
+        purchase_sites
+      })
+    });
 
-  const data = await r.json().catch(() => ({ ok: false, error: "Bad JSON" }));
-  if (!data.ok) {
-    resultsEl.textContent = data.error || "Search failed.";
-    return;
+    const data = await response.json();
+    if (!data.ok) {
+      resultsEl.textContent = data.error || "Search failed.";
+      return;
+    }
+
+    renderResults(data.results || []);
+  } catch (err) {
+    console.error("Search request failed:", err);
+    resultsEl.textContent = "An error occurred while searching.";
   }
-
-  render(data.results || []);
 });
 </script>
