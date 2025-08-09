@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Allergen-Safe Product Finder</title>
 
-  <!-- Bootstrap CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <!-- Bootstrap (optional, for base form styles) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- Site styles -->
   <link rel="stylesheet" href="style.css" />
@@ -20,7 +17,7 @@
     <p class="mb-0">Find products safe for your specific allergies</p>
   </header>
 
-  <div class="container my-4">
+  <main class="container my-4">
     <form id="finderForm" class="mb-4">
       <div class="mb-3">
         <label for="allergens" class="form-label">Allergens (comma-separated):</label>
@@ -51,7 +48,7 @@
     </form>
 
     <div id="results"></div>
-  </div>
+  </main>
 
   <script>
     const form = document.getElementById("finderForm");
@@ -73,15 +70,53 @@
       return a;
     }
 
-    function renderResults(results) {
+    // Build one product card's HTML nodes
+    function buildProductCard(item) {
+      const card = createEl("div", "product-card");
+
+      // --- Thumbnail with robust fallback + protocol upgrade ---
+      const img = createEl("img", "product-thumb");
+      let candidate = (item.image && String(item.image).trim()) ? String(item.image).trim() : "placeholder.png";
+      if (/^http:\/\//i.test(candidate)) candidate = candidate.replace(/^http:\/\//i, "https://");
+      img.src = /^https?:\/\//i.test(candidate) ? candidate : "placeholder.png";
+      img.alt = item.name || "Product";
+      img.loading = "lazy";
+      img.onerror = () => { img.onerror = null; img.src = "placeholder.png"; };
+
+      // --- Details ---
+      const details = createEl("div");
+
+      const title = createEl("h4", "product-title");
+      title.textContent = item.name || "Unnamed Product";
+
+      const meta = createEl("div", "product-meta");
+      const ratingText = (typeof item.rating === "number") ? `⭐ ${item.rating.toFixed(1)}` : "Unrated";
+      const reviewsText = item.reviews ? ` • ${item.reviews} reviews` : "";
+      const priceText = item.price ? ` • ${String(item.price).startsWith("$") ? item.price : `$${item.price}`}` : "";
+      meta.textContent = `${ratingText}${reviewsText}${priceText}`;
+
+      const links = createEl("div", "product-links");
+      const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
+      const retailerLink = createLink(item.links?.primary, "Retailer");
+      if (manufacturerLink) links.appendChild(manufacturerLink);
+      if (manufacturerLink && retailerLink) links.appendChild(document.createTextNode(" | "));
+      if (retailerLink) links.appendChild(retailerLink);
+
+      details.append(title, meta, links);
+      card.append(img, details);
+      return card;
+    }
+
+    function renderResults(groups) {
       resultsEl.innerHTML = "";
 
-      results.forEach(group => {
+      groups.forEach(group => {
         const h3 = createEl("h3", "category-header");
         h3.textContent = group.category || "Uncategorized";
         resultsEl.appendChild(h3);
 
-        if (!Array.isArray(group.items) || group.items.length === 0) {
+        const items = Array.isArray(group.items) ? group.items : [];
+        if (items.length === 0) {
           const p = createEl("p", "no-results");
           p.textContent = "No items passed ingredient screening.";
           resultsEl.appendChild(p);
@@ -89,72 +124,35 @@
         }
 
         const grid = createEl("div", "product-grid");
-
-        group.items.forEach(item => {
-          const card = createEl("div", "product-card");
-
-          // Thumbnail
-          const img = createEl("img", "product-thumb");
-          const src = (item.image && item.image.trim()) ? item.image : "/placeholder.png";
-          img.src = src;
-          img.alt = item.name || "Product";
-          img.loading = "lazy";
-
-          // Details block
-          const details = createEl("div");
-
-          const title = createEl("h4", "product-title");
-          title.textContent = item.name || "Unnamed Product";
-
-          const meta = createEl("div", "product-meta");
-          const rating = (typeof item.rating === "number") ? `⭐ ${item.rating.toFixed(1)}` : "Unrated";
-          const reviews = item.reviews ? ` • ${item.reviews} reviews` : "";
-          const price = item.price ? ` • ${String(item.price).startsWith("$") ? item.price : `$${item.price}`}` : "";
-          meta.textContent = `${rating}${reviews}${price}`;
-
-          const linksContainer = createEl("div", "product-links");
-          const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
-          const retailerLink = createLink(item.links?.primary, "Retailer");
-          if (manufacturerLink) linksContainer.appendChild(manufacturerLink);
-          if (manufacturerLink && retailerLink) linksContainer.appendChild(document.createTextNode(" | "));
-          if (retailerLink) linksContainer.appendChild(retailerLink);
-
-          details.append(title, meta, linksContainer);
-          card.append(img, details);
-          grid.appendChild(card);
-        });
-
+        items.forEach(item => grid.appendChild(buildProductCard(item)));
         resultsEl.appendChild(grid);
       });
     }
 
-    form.addEventListener("submit", async e => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       resultsEl.textContent = "Searching…";
 
       const allergens = (document.getElementById("allergens").value || "")
         .split(",").map(s => s.trim()).filter(Boolean);
+
       const categories = (document.getElementById("categories").value || "")
         .split(",").map(s => s.trim()).filter(Boolean);
+
       const notes = (document.getElementById("notes").value || "").trim();
       const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
+
       const purchase_sites = (document.getElementById("retailers")?.value || "")
         .split(",").map(s => s.trim()).filter(Boolean);
 
       try {
-        const response = await fetch("/api/search", {
+        const res = await fetch("/api/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            allergens,
-            categories,
-            notes,
-            rating_floor,
-            purchase_sites
-          })
+          body: JSON.stringify({ allergens, categories, notes, rating_floor, purchase_sites })
         });
 
-        const data = await response.json();
+        const data = await res.json();
         if (!data.ok) {
           resultsEl.textContent = data.error || "Search failed.";
           return;
