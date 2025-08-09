@@ -3,7 +3,8 @@ import cors from "cors";
 import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import searchRoute from "./routes/search.js";
+import searchRoute from "./lib/routes/search.js";
+
 
 config();
 const app = express();
