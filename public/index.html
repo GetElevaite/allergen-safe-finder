@@ -11,46 +11,8 @@
     rel="stylesheet"
   />
 
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    header {
-      background-color: #007bff;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-    .product-card {
-      background: white;
-      border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .product-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
-    .product-meta {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 0.5rem;
-    }
-    .product-links a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .product-links a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <!-- Site styles -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
@@ -115,12 +77,12 @@
       resultsEl.innerHTML = "";
 
       results.forEach(group => {
-        const h3 = createEl("h3", "mt-4");
+        const h3 = createEl("h3", "category-header");
         h3.textContent = group.category || "Uncategorized";
         resultsEl.appendChild(h3);
 
         if (!Array.isArray(group.items) || group.items.length === 0) {
-          const p = createEl("p", "text-muted");
+          const p = createEl("p", "no-results");
           p.textContent = "No items passed ingredient screening.";
           resultsEl.appendChild(p);
           return;
@@ -131,26 +93,34 @@
         group.items.forEach(item => {
           const card = createEl("div", "product-card");
 
-          const title = createEl("div", "product-title");
+          // Thumbnail
+          const img = createEl("img", "product-thumb");
+          const src = (item.image && item.image.trim()) ? item.image : "/placeholder.png";
+          img.src = src;
+          img.alt = item.name || "Product";
+          img.loading = "lazy";
+
+          // Details block
+          const details = createEl("div");
+
+          const title = createEl("h4", "product-title");
           title.textContent = item.name || "Unnamed Product";
 
           const meta = createEl("div", "product-meta");
-          const rating = item.rating ? `${item.rating.toFixed(1)}★` : "Unrated";
+          const rating = (typeof item.rating === "number") ? `⭐ ${item.rating.toFixed(1)}` : "Unrated";
           const reviews = item.reviews ? ` • ${item.reviews} reviews` : "";
-          const price = item.price ? ` • $${item.price}` : "";
+          const price = item.price ? ` • ${String(item.price).startsWith("$") ? item.price : `$${item.price}`}` : "";
           meta.textContent = `${rating}${reviews}${price}`;
 
           const linksContainer = createEl("div", "product-links");
           const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
           const retailerLink = createLink(item.links?.primary, "Retailer");
-
           if (manufacturerLink) linksContainer.appendChild(manufacturerLink);
-          if (manufacturerLink && retailerLink) {
-            linksContainer.appendChild(document.createTextNode(" | "));
-          }
+          if (manufacturerLink && retailerLink) linksContainer.appendChild(document.createTextNode(" | "));
           if (retailerLink) linksContainer.appendChild(retailerLink);
 
-          card.append(title, meta, linksContainer);
+          details.append(title, meta, linksContainer);
+          card.append(img, details);
           grid.appendChild(card);
         });
 
