@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import searchRoute from "./lib/routes/search.js";
 
+
 config();
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
