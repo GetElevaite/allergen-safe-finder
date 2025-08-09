@@ -1,160 +1,100 @@
-/* ========== Global ========== */
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --blue: #0a6ad9;
-  --link: #0070C0;
-  --text: #111;
-  --text-muted: #555;
-  --border: #e5e7eb;
-  --bg: #f7f7fb;
-  --card: #fff;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "Aptos", -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  line-height: 1.5;
-}
-
-/* ========== Layout ========== */
-header {
-  background: var(--blue);
-  color: #fff;
-  padding: 24px;
-}
-header h1 {
-  margin: 0 0 8px;
-}
-
-main {
-  max-width: 980px;
-  margin: 20px auto;
-  padding: 0 16px;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-/* ========== Form ========== */
-label {
-  display: block;
-  font-weight: 600;
-  margin: 10px 0 6px;
-}
-
-input, textarea, select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  background: #fff;
-  font: inherit;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-@media (max-width: 720px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-button {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: var(--blue);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-button:hover {
-  opacity: 0.95;
-}
-
-/* ========== Results ========== */
-#results {
-  font-family: inherit;
-  font-size: 16px;
+/* Base layout */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f9f9f9;
   color: #333;
-  padding: 8px 0;
 }
 
-/* Group headings */
-#results h3 {
-  margin: 16px 0 8px;
-  font-size: 1.2em;
-  color: var(--blue);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 4px;
+/* Category headings */
+.category-header {
+  margin-top: 30px;
+  font-size: 1.4rem;
+  color: #222;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 5px;
+}
+
+/* Empty category text */
+.no-results {
+  font-style: italic;
+  color: #777;
+  margin: 10px 0 20px 0;
+}
+
+/* Product grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 15px;
 }
 
 /* Product card */
-.product {
-  border: 1px solid var(--border);
-  border-radius: 12px;
+.product-card {
   background: #fff;
-  padding: 14px;
-  margin: 12px 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  padding: 15px;
+  transition: box-shadow 0.2s ease;
 }
-.product h4 {
-  margin: 0 0 6px;
-  font-size: 1.05em;
-  color: var(--text);
+
+.product-card:hover {
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
-.rating {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 4px;
+
+/* Product title */
+.product-title {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #0073aa;
+}
+
+/* Meta info */
+.product-meta {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
 }
 
 /* Links */
-.links a {
-  color: var(--link);
-  font-weight: 700;
+.product-links a {
+  color: #0066cc;
   text-decoration: none;
 }
-.links a:hover {
+
+.product-links a:hover {
   text-decoration: underline;
 }
 
-/* Empty state text */
-#results p {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 6px 0;
+/* Form styling */
+#finderForm {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
 }
 
-/* Misc */
-.group { margin-bottom: 16px; }
-.disclaimer {
-  font-size: 13px;
-  color: #333;
-  padding: 8px 12px;
+#finderForm input,
+#finderForm textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
-footer {
-  text-align: center;
-  padding: 24px;
-  color: var(--text-muted);
+
+#finderForm button {
+  background: #0073aa;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
-.warn {
-  color: #b91c1c;
-  font-size: 13px;
-  margin-top: 6px;
+
+#finderForm button:hover {
+  background: #005f87;
 }
