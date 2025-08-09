@@ -1,129 +1,216 @@
-<div style="padding:12px;background:#fff3cd;border:1px solid #ffe58f;border-radius:8px;margin:12px 0;">
-  Hello from index.html — if you can see this, the page is loading.
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Allergen-Safe Product Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      margin: 5px 0 15px 0;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 15px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .category-header {
+      margin-top: 20px;
+      color: #444;
+      border-bottom: 1px solid #ccc;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    .product-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .product-title {
+      margin: 0 0 5px 0;
+      font-size: 1.1em;
+    }
+    .product-meta {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 8px;
+    }
+    .product-links a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    .product-links a:hover {
+      text-decoration: underline;
+    }
+    .no-results {
+      font-style: italic;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div style="padding:12px;background:#fff3cd;border:1px solid #ffe58f;border-radius:8px;margin:12px 0;">
+    Hello from index.html — if you can see this, the page is loading.
+  </div>
 
-<script>
-const form = document.getElementById("finderForm");
-const resultsEl = document.getElementById("results");
+  <h1>Allergen-Safe Product Finder</h1>
+  <form id="finderForm">
+    <label for="allergens">Allergens (comma-separated):</label>
+    <input type="text" id="allergens" placeholder="e.g. Amidoamine, Propolis"/>
 
-/**
- * Create an element with optional class(es)
- */
-function createEl(tag, cls) {
-  const el = document.createElement(tag);
-  if (cls) el.className = cls;
-  return el;
-}
+    <label for="categories">Categories (comma-separated):</label>
+    <input type="text" id="categories" placeholder="e.g. Shampoo, Sunscreen"/>
 
-/**
- * Create an anchor tag with safety attributes
- */
-function createLink(href, text) {
-  if (!href) return null;
-  const a = document.createElement("a");
-  a.href = href;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  a.textContent = text;
-  return a;
-}
+    <label for="notes">Notes or preferences:</label>
+    <textarea id="notes" rows="2"></textarea>
 
-/**
- * Render product search results
- */
-function renderResults(results) {
-  resultsEl.innerHTML = "";
+    <label for="rating_floor">Minimum Rating (0–5):</label>
+    <input type="number" id="rating_floor" value="4.0" step="0.1" min="0" max="5"/>
 
-  results.forEach(group => {
-    // Category heading
-    const h3 = createEl("h3", "category-header");
-    h3.textContent = group.category || "Uncategorized";
-    resultsEl.appendChild(h3);
+    <label for="retailers">Preferred Retailers (comma-separated):</label>
+    <input type="text" id="retailers" placeholder="e.g. Amazon, Target"/>
 
-    // Handle empty category
-    if (!Array.isArray(group.items) || group.items.length === 0) {
-      const p = createEl("p", "no-results");
-      p.textContent = "No items passed ingredient screening.";
-      resultsEl.appendChild(p);
-      return;
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+    const form = document.getElementById("finderForm");
+    const resultsEl = document.getElementById("results");
+
+    function createEl(tag, cls) {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      return el;
     }
 
-    // Product grid
-    const grid = createEl("div", "product-grid");
+    function createLink(href, text) {
+      if (!href) return null;
+      const a = document.createElement("a");
+      a.href = href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = text;
+      return a;
+    }
 
-    group.items.forEach(item => {
-      const card = createEl("div", "product-card");
+    function renderResults(results) {
+      resultsEl.innerHTML = "";
 
-      // Title
-      const title = createEl("h4", "product-title");
-      title.textContent = item.name || "Unnamed Product";
+      results.forEach(group => {
+        const h3 = createEl("h3", "category-header");
+        h3.textContent = group.category || "Uncategorized";
+        resultsEl.appendChild(h3);
 
-      // Meta info
-      const meta = createEl("div", "product-meta");
-      const rating = item.rating ? `${item.rating.toFixed(1)}★` : "Unrated";
-      const reviews = item.reviews ? ` • ${item.reviews} reviews` : "";
-      const price = item.price ? ` • $${item.price}` : "";
-      meta.textContent = `${rating}${reviews}${price}`;
+        if (!Array.isArray(group.items) || group.items.length === 0) {
+          const p = createEl("p", "no-results");
+          p.textContent = "No items passed ingredient screening.";
+          resultsEl.appendChild(p);
+          return;
+        }
 
-      // Links
-      const linksContainer = createEl("div", "product-links");
-      const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
-      const retailerLink = createLink(item.links?.primary, "Retailer");
+        const grid = createEl("div", "product-grid");
 
-      if (manufacturerLink) linksContainer.appendChild(manufacturerLink);
-      if (manufacturerLink && retailerLink) {
-        linksContainer.appendChild(document.createTextNode(" | "));
+        group.items.forEach(item => {
+          const card = createEl("div", "product-card");
+
+          const title = createEl("h4", "product-title");
+          title.textContent = item.name || "Unnamed Product";
+
+          const meta = createEl("div", "product-meta");
+          const rating = item.rating ? `${item.rating.toFixed(1)}★` : "Unrated";
+          const reviews = item.reviews ? ` • ${item.reviews} reviews` : "";
+          const price = item.price ? ` • $${item.price}` : "";
+          meta.textContent = `${rating}${reviews}${price}`;
+
+          const linksContainer = createEl("div", "product-links");
+          const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
+          const retailerLink = createLink(item.links?.primary, "Retailer");
+
+          if (manufacturerLink) linksContainer.appendChild(manufacturerLink);
+          if (manufacturerLink && retailerLink) {
+            linksContainer.appendChild(document.createTextNode(" | "));
+          }
+          if (retailerLink) linksContainer.appendChild(retailerLink);
+
+          card.append(title, meta, linksContainer);
+          grid.appendChild(card);
+        });
+
+        resultsEl.appendChild(grid);
+      });
+    }
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      resultsEl.textContent = "Searching…";
+
+      const allergens = (document.getElementById("allergens").value || "")
+        .split(",").map(s => s.trim()).filter(Boolean);
+      const categories = (document.getElementById("categories").value || "")
+        .split(",").map(s => s.trim()).filter(Boolean);
+      const notes = (document.getElementById("notes").value || "").trim();
+      const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
+      const purchase_sites = (document.getElementById("retailers")?.value || "")
+        .split(",").map(s => s.trim()).filter(Boolean);
+
+      try {
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            allergens,
+            categories,
+            notes,
+            rating_floor,
+            purchase_sites
+          })
+        });
+
+        const data = await response.json();
+        if (!data.ok) {
+          resultsEl.textContent = data.error || "Search failed.";
+          return;
+        }
+
+        renderResults(data.results || []);
+      } catch (err) {
+        console.error("Search request failed:", err);
+        resultsEl.textContent = "An error occurred while searching.";
       }
-      if (retailerLink) linksContainer.appendChild(retailerLink);
-
-      // Assemble
-      card.append(title, meta, linksContainer);
-      grid.appendChild(card);
     });
-
-    resultsEl.appendChild(grid);
-  });
-}
-
-/**
- * Form submit handler
- */
-form.addEventListener("submit", async e => {
-  e.preventDefault();
-  resultsEl.textContent = "Searching…";
-
-  const allergens = (document.getElementById("allergens").value || "")
-    .split(",").map(s => s.trim()).filter(Boolean);
-  const categories = (document.getElementById("categories").value || "")
-    .split(",").map(s => s.trim()).filter(Boolean);
-  const notes = (document.getElementById("notes").value || "").trim();
-  const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
-  const purchase_sites = (document.getElementById("retailers")?.value || "")
-    .split(",").map(s => s.trim()).filter(Boolean);
-
-  try {
-    const response = await fetch("/api/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        allergens,
-        categories,
-        notes,
-        rating_floor,
-        purchase_sites
-      })
-    });
-
-    const data = await response.json();
-    if (!data.ok) {
-      resultsEl.textContent = data.error || "Search failed.";
-      return;
-    }
-
-    renderResults(data.results || []);
-  } catch (err) {
-    console.error("Search request failed:", err);
-    resultsEl.textContent = "An error occurred while searching.";
-  }
-});
-</script>
+  </script>
+</body>
+</html>
