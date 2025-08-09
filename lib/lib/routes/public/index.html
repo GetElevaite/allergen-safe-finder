@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Allergen-Safe Product Finder</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>Allergen-Safe Product Finder</h1>
+    <p>Find products verified against your allergens with trusted links.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Search</h2>
+      <form id="finderForm">
+        <label>Allergens (comma-separated)</label>
+        <input id="allergens" placeholder="Amidoamine, Propolis, Benzophenone-3, Sorbitan sesquioleate, Fragrance Mix 1, Fragrance Mix 2, Amerchol">
+
+        <label>Categories (comma-separated)</label>
+        <input id="categories" placeholder="facial sunscreen, shampoo for color-treated hair">
+
+        <div class="grid">
+          <div>
+            <label>Budget Min (optional)</label>
+            <input id="budget_min" type="number" min="0" step="1">
+          </div>
+          <div>
+            <label>Budget Max (optional)</label>
+            <input id="budget_max" type="number" min="0" step="1">
+          </div>
+          <div>
+            <label>Rating Floor</label>
+            <input id="rating_floor" type="number" min="0" max="5" step="0.1" value="4.0">
+          </div>
+          <div>
+            <label>Region</label>
+            <input id="region" placeholder="US">
+          </div>
+        </div>
+
+        <label>Preferred Retailers (comma-separated)</label>
+        <input id="purchase_sites" placeholder="Amazon, Target, Manufacturer">
+
+        <label>Notes (optional)</label>
+        <textarea id="notes" rows="3" placeholder="Fragrance-free only. Mineral sunscreen preferred."></textarea>
+
+        <button type="submit">Find Safe Products</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Results</h2>
+      <pre id="llmMessage" class="mono"></pre>
+      <div id="cards"></div>
+    </section>
+
+    <section class="disclaimer">
+      <p><strong>Disclaimer:</strong> These recommendations are for informational purposes only and are not a substitute for medical advice. Please consult a qualified healthcare provider before trying new products.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Allergen-Safe Product Finder</p>
+  </footer>
+
+  <script>
+    async function postJSON(url, data) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function renderCards(container, data) {
+      container.innerHTML = "";
+      (data || []).forEach(group => {
+        const wrap = document.createElement("div");
+        wrap.className = "group";
+        const h3 = document.createElement("h3");
+        h3.textContent = group.category;
+        wrap.appendChild(h3);
+
+        (group.items || []).forEach(item => {
+          const card = document.createElement("div");
+          card.className = "product";
+
+          const title = document.createElement("h4");
+          title.textContent = item.name + (item.variant ? (" — " + item.variant) : "");
+          card.appendChild(title);
+
+          const rating = document.createElement("div");
+          rating.className = "rating";
+          rating.textContent = (item.rating? item.rating.toFixed(1):"N/A") + "/5" + (item.reviews? (" from " + item.reviews + " reviews") : "");
+          card.appendChild(rating);
+
+          const links = document.createElement("p");
+          links.className = "links";
+          const a1 = document.createElement("a"); a1.href = item.links?.manufacturer || "#"; a1.target = "_blank"; a1.textContent = "Manufacturer";
+          const a2 = document.createElement("a"); a2.href = item.links?.retailer1 || "#"; a2.target = "_blank"; a2.textContent = "Retailer 1";
+          const a3 = document.createElement("a"); a3.href = item.links?.retailer2 || "#"; a3.target = "_blank"; a3.textContent = "Retailer 2";
+          links.appendChild(a1); links.appendChild(document.createTextNode(" | "));
+          links.appendChild(a2); links.appendChild(document.createTextNode(" | "));
+          links.appendChild(a3);
+          card.appendChild(links);
+
+          if (item.policy && !item.policy.ok) {
+            const warn = document.createElement("div");
+            warn.className = "warn";
+            warn.textContent = "Excluded: " + item.policy.reason;
+            card.appendChild(warn);
+          }
+
+          wrap.appendChild(card);
+        });
+
+        container.appendChild(wrap);
+      });
+    }
+
+    document.getElementById("finderForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const allergens = document.getElementById("allergens").value.split(",").map(s => s.trim()).filter(Boolean);
+      const categories = document.getElementById("categories").value.split(",").map(s => s.trim()).filter(Boolean);
+      const budget_min = Number(document.getElementById("budget_min").value || 0) || undefined;
+      const budget_max = Number(document.getElementById("budget_max").value || 0) || undefined;
+      const rating_floor = Number(document.getElementById("rating_floor").value || 4.0);
+      const region = document.getElementById("region").value || "US";
+      const purchase_sites = document.getElementById("purchase_sites").value.split(",").map(s => s.trim()).filter(Boolean);
+      const notes = document.getElementById("notes").value;
+
+      const payload = { allergens, categories, budget_min, budget_max, rating_floor, region, purchase_sites, notes };
+
+      const llmMessage = document.getElementById("llmMessage");
+      const cards = document.getElementById("cards");
+      llmMessage.textContent = "Searching…";
+      cards.innerHTML = "";
+
+      try {
+        const data = await postJSON("/api/search", payload);
+        llmMessage.textContent = data.message || "";
+        renderCards(cards, data.results);
+      } catch (err) {
+        llmMessage.textContent = "Error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
