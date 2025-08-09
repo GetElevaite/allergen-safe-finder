@@ -2,109 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Allergen-Safe Product Finder</title>
+
+  <!-- Bootstrap CSS for styling -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      color: #333;
-    }
-    form {
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-    }
-    label {
-      font-weight: bold;
-    }
-    input, textarea {
-      width: 100%;
-      margin: 5px 0 15px 0;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 15px;
-      background: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .category-header {
-      margin-top: 20px;
-      color: #444;
-      border-bottom: 1px solid #ccc;
+      background-color: #f8f9fa;
+      padding: 20px;
     }
     .product-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
+      gap: 1rem;
     }
     .product-card {
-      background: #fff;
+      background: white;
       border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 10px;
+      padding: 1rem;
+      border-radius: 8px;
     }
     .product-title {
-      margin: 0 0 5px 0;
-      font-size: 1.1em;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
     }
     .product-meta {
-      font-size: 0.9em;
+      font-size: 0.9rem;
       color: #555;
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
     }
     .product-links a {
-      color: #007BFF;
+      color: #007bff;
       text-decoration: none;
     }
     .product-links a:hover {
       text-decoration: underline;
     }
-    .no-results {
-      font-style: italic;
-      color: #777;
-    }
   </style>
 </head>
 <body>
-  <div style="padding:12px;background:#fff3cd;border:1px solid #ffe58f;border-radius:8px;margin:12px 0;">
+  <div class="alert alert-warning" style="margin-bottom: 20px;">
     Hello from index.html — if you can see this, the page is loading.
   </div>
 
-  <h1>Allergen-Safe Product Finder</h1>
-  <form id="finderForm">
-    <label for="allergens">Allergens (comma-separated):</label>
-    <input type="text" id="allergens" placeholder="e.g. Amidoamine, Propolis"/>
+  <div class="container">
+    <h1 class="mb-4">Allergen-Safe Product Finder</h1>
+    <form id="finderForm" class="mb-4">
+      <div class="mb-3">
+        <label for="allergens" class="form-label">Allergens (comma-separated):</label>
+        <input type="text" id="allergens" class="form-control" placeholder="e.g. Amidoamine, Propolis" />
+      </div>
 
-    <label for="categories">Categories (comma-separated):</label>
-    <input type="text" id="categories" placeholder="e.g. Shampoo, Sunscreen"/>
+      <div class="mb-3">
+        <label for="categories" class="form-label">Categories (comma-separated):</label>
+        <input type="text" id="categories" class="form-control" placeholder="e.g. Shampoo, Sunscreen" />
+      </div>
 
-    <label for="notes">Notes or preferences:</label>
-    <textarea id="notes" rows="2"></textarea>
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes or preferences:</label>
+        <textarea id="notes" class="form-control"></textarea>
+      </div>
 
-    <label for="rating_floor">Minimum Rating (0–5):</label>
-    <input type="number" id="rating_floor" value="4.0" step="0.1" min="0" max="5"/>
+      <div class="mb-3">
+        <label for="rating_floor" class="form-label">Minimum Rating (0–5):</label>
+        <input type="number" id="rating_floor" class="form-control" value="4.0" step="0.1" min="0" max="5" />
+      </div>
 
-    <label for="retailers">Preferred Retailers (comma-separated):</label>
-    <input type="text" id="retailers" placeholder="e.g. Amazon, Target"/>
+      <div class="mb-3">
+        <label for="retailers" class="form-label">Preferred Retailers (comma-separated):</label>
+        <input type="text" id="retailers" class="form-control" placeholder="e.g. Amazon, Target" />
+      </div>
 
-    <button type="submit">Search</button>
-  </form>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
 
-  <div id="results"></div>
+    <div id="results"></div>
+  </div>
 
   <script>
     const form = document.getElementById("finderForm");
