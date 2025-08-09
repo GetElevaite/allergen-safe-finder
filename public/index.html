@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Allergen-Safe Product Finder</title>
 
-  <!-- Bootstrap CSS for styling -->
+  <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
@@ -14,7 +14,12 @@
   <style>
     body {
       background-color: #f8f9fa;
-      padding: 20px;
+    }
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem;
+      text-align: center;
     }
     .product-grid {
       display: grid;
@@ -26,9 +31,11 @@
       border: 1px solid #ddd;
       padding: 1rem;
       border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .product-title {
       font-size: 1.1rem;
+      font-weight: bold;
       margin-bottom: 0.5rem;
     }
     .product-meta {
@@ -46,12 +53,12 @@
   </style>
 </head>
 <body>
-  <div class="alert alert-warning" style="margin-bottom: 20px;">
-    Hello from index.html — if you can see this, the page is loading.
-  </div>
+  <header>
+    <h1>Allergen-Safe Product Finder</h1>
+    <p class="mb-0">Find products safe for your specific allergies</p>
+  </header>
 
-  <div class="container">
-    <h1 class="mb-4">Allergen-Safe Product Finder</h1>
+  <div class="container my-4">
     <form id="finderForm" class="mb-4">
       <div class="mb-3">
         <label for="allergens" class="form-label">Allergens (comma-separated):</label>
@@ -65,7 +72,7 @@
 
       <div class="mb-3">
         <label for="notes" class="form-label">Notes or preferences:</label>
-        <textarea id="notes" class="form-control"></textarea>
+        <textarea id="notes" class="form-control" placeholder="Any extra preferences"></textarea>
       </div>
 
       <div class="mb-3">
@@ -78,7 +85,7 @@
         <input type="text" id="retailers" class="form-control" placeholder="e.g. Amazon, Target" />
       </div>
 
-      <button type="submit" class="btn btn-primary">Search</button>
+      <button type="submit" class="btn btn-primary w-100">Search</button>
     </form>
 
     <div id="results"></div>
@@ -108,12 +115,12 @@
       resultsEl.innerHTML = "";
 
       results.forEach(group => {
-        const h3 = createEl("h3", "category-header");
+        const h3 = createEl("h3", "mt-4");
         h3.textContent = group.category || "Uncategorized";
         resultsEl.appendChild(h3);
 
         if (!Array.isArray(group.items) || group.items.length === 0) {
-          const p = createEl("p", "no-results");
+          const p = createEl("p", "text-muted");
           p.textContent = "No items passed ingredient screening.";
           resultsEl.appendChild(p);
           return;
@@ -124,7 +131,7 @@
         group.items.forEach(item => {
           const card = createEl("div", "product-card");
 
-          const title = createEl("h4", "product-title");
+          const title = createEl("div", "product-title");
           title.textContent = item.name || "Unnamed Product";
 
           const meta = createEl("div", "product-meta");
