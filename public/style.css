@@ -1,14 +1,16 @@
 /* ========== Global ========== */
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-:root{
-  --blue:#0a6ad9;
-  --link:#0070C0;       /* cleaner professional blue */
-  --text:#111;
-  --text-muted:#555;
-  --border:#e5e7eb;
-  --bg:#f7f7fb;
-  --card:#fff;
+:root {
+  --blue: #0a6ad9;
+  --link: #0070C0;
+  --text: #111;
+  --text-muted: #555;
+  --border: #e5e7eb;
+  --bg: #f7f7fb;
+  --card: #fff;
 }
 
 html, body {
@@ -26,9 +28,15 @@ header {
   color: #fff;
   padding: 24px;
 }
-header h1 { margin: 0 0 8px; }
+header h1 {
+  margin: 0 0 8px;
+}
 
-main { max-width: 980px; margin: 20px auto; padding: 0 16px; }
+main {
+  max-width: 980px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
 
 .card {
   background: var(--card);
@@ -39,88 +47,114 @@ main { max-width: 980px; margin: 20px auto; padding: 0 16px; }
 }
 
 /* ========== Form ========== */
-label { display:block; font-weight:600; margin: 10px 0 6px; }
+label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 6px;
+}
 
 input, textarea, select {
   width: 100%;
   padding: 10px;
   border: 1px solid #d1d5db;
   border-radius: 10px;
-  background:#fff;
+  background: #fff;
   font: inherit;
 }
 
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-@media (max-width: 720px){ .grid { grid-template-columns: 1fr; } }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 button {
   margin-top: 12px;
   padding: 10px 14px;
   background: var(--blue);
-  color:#fff;
-  border:none;
-  border-radius:10px;
-  font-weight:700;
-  cursor:pointer;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
 }
-button:hover { opacity:.95; }
+button:hover {
+  opacity: 0.95;
+}
 
 /* ========== Results ========== */
-/* Container used for the results block (id may be #results in your HTML) */
-#results, .results {
-  font-family: "Aptos", -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+#results {
+  font-family: inherit;
   font-size: 16px;
   color: #333;
-  background: transparent;     /* remove black background */
-  border: none;
   padding: 8px 0;
-  white-space: normal;
 }
 
-/* If your template renders text inside <pre>/<code>, normalize it */
-#results pre, #results code,
-.results pre, .results code {
-  background: transparent !important;
-  color: inherit !important;
-  font-family: inherit !important;
-  white-space: normal !important;
+/* Group headings */
+#results h3 {
+  margin: 16px 0 8px;
+  font-size: 1.2em;
+  color: var(--blue);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
 }
 
-/* Individual product card inside results */
+/* Product card */
 .product {
-  border:1px solid var(--border);
-  border-radius:12px;
-  background:#fafafa;
-  padding:12px;
-  margin:12px 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+  margin: 12px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-.product h4 { margin: 0 0 6px; }
+.product h4 {
+  margin: 0 0 6px;
+  font-size: 1.05em;
+  color: var(--text);
+}
+.rating {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
 
-/* Rating / small text */
-.rating { font-size: 14px; color: #333; margin-bottom: 4px; }
-
-/* Links in results */
-.links a, #results a, .results a {
+/* Links */
+.links a {
   color: var(--link);
   font-weight: 700;
   text-decoration: none;
 }
-.links a:hover, #results a:hover, .results a:hover { text-decoration: underline; }
+.links a:hover {
+  text-decoration: underline;
+}
 
-/* Old “mono” block was causing the black console look — redefine it cleanly */
-.mono {
-  font-family: "Aptos", -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-size: 16px;
-  color: #333;
-  background: transparent;     /* no black box */
-  padding: 0;                  /* let the container handle spacing */
-  border-radius: 0;
-  min-height: 0;
-  white-space: normal;
+/* Empty state text */
+#results p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 6px 0;
 }
 
 /* Misc */
 .group { margin-bottom: 16px; }
-.disclaimer { font-size: 13px; color:#333; padding: 8px 12px; }
-footer { text-align:center; padding: 24px; color: var(--text-muted); }
-.warn { color: #b91c1c; font-size: 13px; margin-top: 6px; }
+.disclaimer {
+  font-size: 13px;
+  color: #333;
+  padding: 8px 12px;
+}
+footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+}
+.warn {
+  color: #b91c1c;
+  font-size: 13px;
+  margin-top: 6px;
+}
