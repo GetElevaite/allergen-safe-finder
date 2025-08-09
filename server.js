@@ -3,29 +3,21 @@ import cors from "cors";
 import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import searchRoute from "./lib/lib/routes/search.js";
-
+import searchRoute from "./lib/routes/search.js";
 
 config();
 const app = express();
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Static files
+app.use(cors());
+app.use(express.json());
+
+// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// API route (must match frontend: /api/search)
+// Routes
 app.use("/api/search", searchRoute);
 
-// Fallback to index.html
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log("Allergen-Safe Product Finder running on port", PORT);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
