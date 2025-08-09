@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // API route
-app.use("/api/search", require("./lib/routes/search.js"));
+app.use("/api/search", require("./lib/routes/search.js").default);
 
 // Serve index.html for root
 app.get("/", (req, res) => {
