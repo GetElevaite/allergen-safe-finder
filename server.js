@@ -3,7 +3,8 @@ import cors from "cors";
 import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import searchRoute from "./routes/search.js";
+import searchRoutes from './routes/search.js';
+
 
 config();
 const app = express();
@@ -17,7 +18,8 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "public")));
 
 // API routes
-app.use("/api/search", searchRoute);
+app.use('/search', searchRoutes);
+
 
 // Fallback to index.html
 app.get("*", (req, res) => {
