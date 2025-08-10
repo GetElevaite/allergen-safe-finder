@@ -35,14 +35,19 @@
       </div>
 
       <div class="row g-2">
-        <div class="col-6">
+        <div class="col-12 col-md-6">
           <label for="rating_floor" class="form-label">Minimum Rating (0–5):</label>
           <input type="number" id="rating_floor" class="form-control" value="4.0" step="0.1" min="0" max="5" />
         </div>
-        <!-- NEW: Location -->
-        <div class="col-6">
+
+        <!-- Location with "Use my location" -->
+        <div class="col-12 col-md-6">
           <label for="geo" class="form-label">Location (ZIP or City, State):</label>
-          <input type="text" id="geo" class="form-control" placeholder="e.g. 84601 or Provo, UT" />
+          <div class="input-group">
+            <input type="text" id="geo" class="form-control" placeholder="e.g. 84601 or Provo, UT" />
+            <button type="button" id="useMyLocation" class="btn btn-outline-primary">Use my location</button>
+          </div>
+          <div id="geoStatus" class="form-text"></div>
         </div>
       </div>
 
@@ -60,7 +65,7 @@
 
       <div class="mb-3">
         <label for="retailers" class="form-label">Preferred Retailers (comma-separated):</label>
-        <input type="text" id="retailers" class="form-control" placeholder="e.g. Amazon, Target" />
+        <input type="text" id="retailers" class="form-control" placeholder="e.g. Target, Ulta, Walmart" />
       </div>
 
       <button type="submit" class="btn btn-primary w-100">Search</button>
@@ -79,39 +84,35 @@
   <script>
     const form = document.getElementById("finderForm");
     const resultsEl = document.getElementById("results");
+    const geoInput = document.getElementById("geo");
+    const geoBtn = document.getElementById("useMyLocation");
+    const geoStatus = document.getElementById("geoStatus");
 
     function createEl(tag, cls) {
       const el = document.createElement(tag);
       if (cls) el.className = cls;
       return el;
     }
-
     function createLink(href, text) {
       if (!href) return null;
       const a = document.createElement("a");
-      a.href = href;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = text;
+      a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = text;
       return a;
     }
 
-    // Inline SVG placeholder (no external file required)
+    // Inline SVG placeholder
     const PLACEHOLDER =
       'data:image/svg+xml;utf8,' +
-      encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="176" height="176">
-          <rect width="100%" height="100%" fill="#f1f3f5"/>
-          <rect x="20" y="20" width="136" height="96" rx="8" fill="#e6e8ec" />
-          <circle cx="52" cy="52" r="20" fill="#d9dde2"/>
-          <rect x="20" y="130" width="120" height="16" rx="4" fill="#e0e3e8"/>
-        </svg>
-      `);
+      encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="176" height="176">
+        <rect width="100%" height="100%" fill="#f1f3f5"/>
+        <rect x="20" y="20" width="136" height="96" rx="8" fill="#e6e8ec" />
+        <circle cx="52" cy="52" r="20" fill="#d9dde2"/>
+        <rect x="20" y="130" width="120" height="16" rx="4" fill="#e0e3e8"/>
+      </svg>`);
 
     function buildProductCard(item) {
       const card = createEl("div", "product-card");
 
-      // Thumbnail with fallback and protocol upgrade
       const img = createEl("img", "product-thumb");
       let candidate = (item.image && String(item.image).trim()) ? String(item.image).trim() : PLACEHOLDER;
       if (/^http:\/\//i.test(candidate)) candidate = candidate.replace(/^http:\/\//i, "https://");
@@ -121,7 +122,6 @@
       img.onerror = () => { img.onerror = null; img.src = PLACEHOLDER; };
 
       const details = createEl("div");
-
       const title = createEl("h4", "product-title");
       title.textContent = item.name || "Unnamed Product";
 
@@ -145,7 +145,6 @@
 
     function renderResults(groups) {
       resultsEl.innerHTML = "";
-
       groups.forEach(group => {
         const h3 = createEl("h3", "category-header");
         h3.textContent = group.category || "Uncategorized";
@@ -158,13 +157,57 @@
           resultsEl.appendChild(p);
           return;
         }
-
         const grid = createEl("div", "product-grid");
         items.forEach(item => grid.appendChild(buildProductCard(item)));
         resultsEl.appendChild(grid);
       });
     }
 
+    // --- Use my location ---
+    geoBtn.addEventListener("click", async () => {
+      if (!navigator.geolocation) {
+        geoStatus.textContent = "Geolocation not supported by your browser.";
+        return;
+      }
+      geoStatus.textContent = "Locating…";
+      geoBtn.disabled = true;
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          // Free reverse-geocode API (no key)
+          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
+          const resp = await fetch(url);
+          const data = await resp.json();
+
+          const city = data.city || data.locality || data.localityInfo?.administrative?.[2]?.name || "";
+          const state = data.principalSubdivision || data.region || "";
+          const zip = data.postcode || "";
+
+          let formatted = "";
+          if (zip) formatted = zip;
+          if (city && state) formatted = `${city}, ${state}`;
+          else if (city) formatted = city;
+          else if (state) formatted = state;
+
+          if (formatted) {
+            geoInput.value = formatted;
+            geoStatus.textContent = `Location set to ${formatted}`;
+          } else {
+            geoStatus.textContent = "Couldn't determine a nearby city/ZIP.";
+          }
+        } catch (e) {
+          geoStatus.textContent = "Failed to look up your location.";
+        } finally {
+          geoBtn.disabled = false;
+        }
+      }, (err) => {
+        geoStatus.textContent = err.code === 1 ? "Permission denied." : "Unable to retrieve your location.";
+        geoBtn.disabled = false;
+      }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
+    });
+
+    // --- Submit handler ---
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       resultsEl.textContent = "Searching…";
@@ -178,13 +221,11 @@
       const notes = (document.getElementById("notes").value || "").trim();
       const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
 
-      // Price range
       const min_price = document.getElementById("min_price")?.value;
       const max_price = document.getElementById("max_price")?.value;
       const price_min = min_price === "" ? null : Number(min_price);
       const price_max = max_price === "" ? null : Number(max_price);
 
-      // NEW: Location
       const location = (document.getElementById("geo")?.value || "").trim();
 
       const purchase_sites = (document.getElementById("retailers")?.value || "")
