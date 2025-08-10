@@ -10,6 +10,13 @@
 
   <!-- Site styles -->
   <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Red asterisk for required labels */
+    .label-required::after { content: " *"; color: #dc3545; font-weight: 700; }
+    /* Small helper area under the location controls */
+    #geoStatus { min-height: 1.25rem; }
+  </style>
 </head>
 <body>
   <header>
@@ -18,15 +25,17 @@
   </header>
 
   <main class="container my-4">
-    <form id="finderForm" class="mb-4">
+    <form id="finderForm" class="mb-4" novalidate>
       <div class="mb-3">
-        <label for="allergens" class="form-label">Allergens (comma-separated):</label>
-        <input type="text" id="allergens" class="form-control" placeholder="e.g. Amidoamine, Propolis" />
+        <label for="allergens" class="form-label label-required">Allergens (comma-separated):</label>
+        <input type="text" id="allergens" class="form-control" placeholder="e.g. Amidoamine, Propolis" required />
+        <div class="invalid-feedback">Please enter at least one allergen.</div>
       </div>
 
       <div class="mb-3">
-        <label for="categories" class="form-label">Categories (comma-separated):</label>
-        <input type="text" id="categories" class="form-control" placeholder="e.g. Shampoo, Sunscreen" />
+        <label for="categories" class="form-label label-required">Categories (comma-separated):</label>
+        <input type="text" id="categories" class="form-control" placeholder="e.g. Shampoo, Sunscreen" required />
+        <div class="invalid-feedback">Please enter at least one category.</div>
       </div>
 
       <div class="mb-3">
@@ -40,12 +49,13 @@
           <input type="number" id="rating_floor" class="form-control" value="4.0" step="0.1" min="0" max="5" />
         </div>
 
-        <!-- Location with "Use my location" -->
+        <!-- Location (button-first; manual appears only if needed) -->
         <div class="col-12 col-md-6">
-          <label for="geo" class="form-label">Location (ZIP or City, State):</label>
-          <div class="input-group">
-            <input type="text" id="geo" class="form-control" placeholder="e.g. 84601 or Provo, UT" />
-            <button type="button" id="useMyLocation" class="btn btn-outline-primary">Use my location</button>
+          <label class="form-label">Location:</label>
+          <div class="d-flex gap-2">
+            <button type="button" id="useMyLocation" class="btn btn-outline-primary flex-shrink-0">Use my location</button>
+            <button type="button" id="enterManually" class="btn btn-outline-secondary flex-shrink-0">Enter manually</button>
+            <input type="text" id="geo" class="form-control d-none" placeholder="ZIP or City, State" />
           </div>
           <div id="geoStatus" class="form-text"></div>
         </div>
@@ -64,8 +74,9 @@
       </div>
 
       <div class="mb-3">
-        <label for="retailers" class="form-label">Preferred Retailers (comma-separated):</label>
-        <input type="text" id="retailers" class="form-control" placeholder="e.g. Target, Ulta, Walmart" />
+        <label for="retailers" class="form-label label-required">Preferred Retailers (comma-separated):</label>
+        <input type="text" id="retailers" class="form-control" placeholder="e.g. Target, Ulta, Walmart" required />
+        <div class="invalid-feedback">Please enter at least one retailer.</div>
       </div>
 
       <button type="submit" class="btn btn-primary w-100">Search</button>
@@ -84,31 +95,27 @@
   <script>
     const form = document.getElementById("finderForm");
     const resultsEl = document.getElementById("results");
-    const geoInput = document.getElementById("geo");
+
     const geoBtn = document.getElementById("useMyLocation");
+    const manualBtn = document.getElementById("enterManually");
+    const geoInput = document.getElementById("geo");
     const geoStatus = document.getElementById("geoStatus");
 
-    function createEl(tag, cls) {
-      const el = document.createElement(tag);
-      if (cls) el.className = cls;
-      return el;
-    }
+    function createEl(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
     function createLink(href, text) {
       if (!href) return null;
-      const a = document.createElement("a");
-      a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = text;
-      return a;
+      const a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = text; return a;
     }
 
-    // Inline SVG placeholder
+    // Inline SVG placeholder (no external file required)
     const PLACEHOLDER =
-      'data:image/svg+xml;utf8,' +
-      encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="176" height="176">
-        <rect width="100%" height="100%" fill="#f1f3f5"/>
-        <rect x="20" y="20" width="136" height="96" rx="8" fill="#e6e8ec" />
-        <circle cx="52" cy="52" r="20" fill="#d9dde2"/>
-        <rect x="20" y="130" width="120" height="16" rx="4" fill="#e0e3e8"/>
-      </svg>`);
+      'data:image/svg+xml;utf8,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="176" height="176">
+          <rect width="100%" height="100%" fill="#f1f3f5"/>
+          <rect x="20" y="20" width="136" height="96" rx="8" fill="#e6e8ec" />
+          <circle cx="52" cy="52" r="20" fill="#d9dde2"/>
+          <rect x="20" y="130" width="120" height="16" rx="4" fill="#e0e3e8"/>
+        </svg>`);
 
     function buildProductCard(item) {
       const card = createEl("div", "product-card");
@@ -122,8 +129,7 @@
       img.onerror = () => { img.onerror = null; img.src = PLACEHOLDER; };
 
       const details = createEl("div");
-      const title = createEl("h4", "product-title");
-      title.textContent = item.name || "Unnamed Product";
+      const title = createEl("h4", "product-title"); title.textContent = item.name || "Unnamed Product";
 
       const meta = createEl("div", "product-meta");
       const ratingText = (typeof item.rating === "number") ? `⭐ ${item.rating.toFixed(1)}` : "Unrated";
@@ -132,11 +138,11 @@
       meta.textContent = `${ratingText}${reviewsText}${priceText}`;
 
       const links = createEl("div", "product-links");
-      const manufacturerLink = createLink(item.links?.manufacturer, "Manufacturer");
-      const retailerLink = createLink(item.links?.primary, "Retailer");
-      if (manufacturerLink) links.appendChild(manufacturerLink);
-      if (manufacturerLink && retailerLink) links.appendChild(document.createTextNode(" | "));
-      if (retailerLink) links.appendChild(retailerLink);
+      const mfr = createLink(item.links?.manufacturer, "Manufacturer");
+      const shop = createLink(item.links?.primary, "Retailer");
+      if (mfr) links.appendChild(mfr);
+      if (mfr && shop) links.appendChild(document.createTextNode(" | "));
+      if (shop) links.appendChild(shop);
 
       details.append(title, meta, links);
       card.append(img, details);
@@ -151,10 +157,8 @@
         resultsEl.appendChild(h3);
 
         const items = Array.isArray(group.items) ? group.items : [];
-        if (items.length === 0) {
-          const p = createEl("p", "no-results");
-          p.textContent = "No items passed ingredient screening.";
-          resultsEl.appendChild(p);
+        if (!items.length) {
+          const p = createEl("p", "no-results"); p.textContent = "No items passed ingredient screening."; resultsEl.appendChild(p);
           return;
         }
         const grid = createEl("div", "product-grid");
@@ -163,61 +167,89 @@
       });
     }
 
-    // --- Use my location ---
+    // --- Location controls ---
+    const reverseGeocode = async (lat, lon) => {
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+      const resp = await fetch(url); return resp.json();
+    };
+
     geoBtn.addEventListener("click", async () => {
-      if (!navigator.geolocation) {
-        geoStatus.textContent = "Geolocation not supported by your browser.";
-        return;
-      }
-      geoStatus.textContent = "Locating…";
-      geoBtn.disabled = true;
+      if (!navigator.geolocation) { geoStatus.textContent = "Geolocation not supported."; return; }
+      geoStatus.textContent = "Locating…"; geoBtn.disabled = true; manualBtn.disabled = true;
 
       navigator.geolocation.getCurrentPosition(async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
-          // Free reverse-geocode API (no key)
-          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
-          const resp = await fetch(url);
-          const data = await resp.json();
-
-          const city = data.city || data.locality || data.localityInfo?.administrative?.[2]?.name || "";
+          const data = await reverseGeocode(latitude, longitude);
+          const city = data.city || data.locality || "";
           const state = data.principalSubdivision || data.region || "";
           const zip = data.postcode || "";
-
           let formatted = "";
-          if (zip) formatted = zip;
           if (city && state) formatted = `${city}, ${state}`;
-          else if (city) formatted = city;
+          else if (zip) formatted = zip;
           else if (state) formatted = state;
 
           if (formatted) {
+            geoInput.classList.remove("d-none"); geoInput.readOnly = true;
             geoInput.value = formatted;
             geoStatus.textContent = `Location set to ${formatted}`;
           } else {
             geoStatus.textContent = "Couldn't determine a nearby city/ZIP.";
+            geoInput.classList.remove("d-none"); geoInput.readOnly = false; geoInput.focus();
           }
-        } catch (e) {
+        } catch {
           geoStatus.textContent = "Failed to look up your location.";
         } finally {
-          geoBtn.disabled = false;
+          geoBtn.disabled = false; manualBtn.disabled = false;
         }
       }, (err) => {
-        geoStatus.textContent = err.code === 1 ? "Permission denied." : "Unable to retrieve your location.";
-        geoBtn.disabled = false;
+        geoStatus.textContent = (err.code === 1) ? "Permission denied — enter location manually." : "Unable to retrieve your location.";
+        geoInput.classList.remove("d-none"); geoInput.readOnly = false; geoInput.focus();
+        geoBtn.disabled = false; manualBtn.disabled = false;
       }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
     });
+
+    manualBtn.addEventListener("click", () => {
+      geoInput.classList.remove("d-none");
+      geoInput.readOnly = false;
+      geoInput.focus();
+      geoStatus.textContent = "Enter ZIP or City, State (optional).";
+    });
+
+    // --- Validation helpers ---
+    function setInvalid(input, msg) {
+      input.classList.add("is-invalid");
+      const fb = input.nextElementSibling;
+      if (fb && fb.classList.contains("invalid-feedback")) fb.textContent = msg;
+    }
+    function clearInvalid(input) { input.classList.remove("is-invalid"); }
 
     // --- Submit handler ---
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // Required fields: allergens, categories, retailers
+      const allergensEl = document.getElementById("allergens");
+      const categoriesEl = document.getElementById("categories");
+      const retailersEl = document.getElementById("retailers");
+
+      let valid = true;
+      [allergensEl, categoriesEl, retailersEl].forEach(el => clearInvalid(el));
+
+      if (!allergensEl.value.trim()) { setInvalid(allergensEl, "Please enter at least one allergen."); valid = false; }
+      if (!categoriesEl.value.trim()) { setInvalid(categoriesEl, "Please enter at least one category."); valid = false; }
+      if (!retailersEl.value.trim()) { setInvalid(retailersEl, "Please enter at least one retailer."); valid = false; }
+
+      if (!valid) {
+        resultsEl.textContent = "";
+        (document.querySelector(".is-invalid") || allergensEl).focus();
+        return;
+      }
+
       resultsEl.textContent = "Searching…";
 
-      const allergens = (document.getElementById("allergens").value || "")
-        .split(",").map(s => s.trim()).filter(Boolean);
-
-      const categories = (document.getElementById("categories").value || "")
-        .split(",").map(s => s.trim()).filter(Boolean);
-
+      const allergens = allergensEl.value.split(",").map(s => s.trim()).filter(Boolean);
+      const categories = categoriesEl.value.split(",").map(s => s.trim()).filter(Boolean);
       const notes = (document.getElementById("notes").value || "").trim();
       const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
 
@@ -226,10 +258,9 @@
       const price_min = min_price === "" ? null : Number(min_price);
       const price_max = max_price === "" ? null : Number(max_price);
 
-      const location = (document.getElementById("geo")?.value || "").trim();
+      const location = (geoInput.classList.contains("d-none") ? "" : (geoInput.value || "")).trim();
 
-      const purchase_sites = (document.getElementById("retailers")?.value || "")
-        .split(",").map(s => s.trim()).filter(Boolean);
+      const purchase_sites = retailersEl.value.split(",").map(s => s.trim()).filter(Boolean);
 
       try {
         const res = await fetch("/api/search", {
