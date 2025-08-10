@@ -70,20 +70,31 @@
       return a;
     }
 
-    // Build one product card's HTML nodes
+    // Inline SVG placeholder (no external file required)
+    const PLACEHOLDER =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="176" height="176">
+          <rect width="100%" height="100%" fill="#f1f3f5"/>
+          <rect x="20" y="20" width="136" height="96" rx="8" fill="#e6e8ec" />
+          <circle cx="52" cy="52" r="20" fill="#d9dde2"/>
+          <rect x="20" y="130" width="120" height="16" rx="4" fill="#e0e3e8"/>
+        </svg>
+      `);
+
     function buildProductCard(item) {
       const card = createEl("div", "product-card");
 
-      // --- Thumbnail with robust fallback + protocol upgrade ---
+      // Thumbnail with fallback and protocol upgrade
       const img = createEl("img", "product-thumb");
-      let candidate = (item.image && String(item.image).trim()) ? String(item.image).trim() : "placeholder.png";
+      let candidate = (item.image && String(item.image).trim()) ? String(item.image).trim() : PLACEHOLDER;
       if (/^http:\/\//i.test(candidate)) candidate = candidate.replace(/^http:\/\//i, "https://");
-      img.src = /^https?:\/\//i.test(candidate) ? candidate : "placeholder.png";
+      img.src = /^https?:\/\//i.test(candidate) ? candidate : PLACEHOLDER;
       img.alt = item.name || "Product";
       img.loading = "lazy";
-      img.onerror = () => { img.onerror = null; img.src = "placeholder.png"; };
+      img.onerror = () => { img.onerror = null; img.src = PLACEHOLDER; };
 
-      // --- Details ---
+      // Details
       const details = createEl("div");
 
       const title = createEl("h4", "product-title");
