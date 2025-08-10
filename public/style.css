@@ -1,148 +1,185 @@
-/* =========================
-   Allergen-Safe Finder — Styles
-   ========================= */
-
-/* ===== Theme Vars ===== */
-:root{
-  --blue:#0d6efd;
-  --text:#222;
-  --muted:#6c757d;
-  --card:#fff;
-  --border:#e6e8ec;
-  --page-max:1200px;
+/* ===== Theme Variables ===== */
+:root {
+  --blue: #0d6efd;
+  --text: #222;
+  --muted: #6c757d;
+  --card: #fff;
+  --border: #e6e8ec;
+  --page-max: 1200px;
 }
 
 /* ===== Base ===== */
-html,body{
-  margin:0;
-  background:#f8f9fa;
-  color:var(--text);
-  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-size:17px; /* comfortable base size */
-  line-height:1.5;
+html, body {
+  margin: 0;
+  background: #f8f9fa;
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
 }
 
-/* Optional container helper (safe if unused) */
-.container, main{
-  max-width:var(--page-max);
-  margin:24px auto;
-  padding:0 16px;
+.container, main {
+  max-width: var(--page-max);
+  margin: 24px auto;
+  padding: 0 16px;
 }
 
 /* ===== Header ===== */
-header{
-  background:var(--blue);
-  color:#fff;
-  padding:28px 16px;
-  text-align:center;
+header {
+  background: var(--blue);
+  color: #fff;
+  padding: 28px 16px;
+  text-align: center;
 }
-header h1{ margin:0 0 6px; font-size:2rem; }
-header p{ margin:0; opacity:.95; }
+header h1 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+}
+header p {
+  margin: 0;
+  opacity: .95;
+}
 
 /* ===== Form ===== */
-#finderForm{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:18px;
-  box-shadow:0 2px 6px rgba(0,0,0,.04);
-  margin-bottom:18px;
+#finderForm {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  margin-bottom: 18px;
 }
-
-#finderForm label{ font-weight:600; margin-top:10px; display:block; }
+#finderForm label {
+  font-weight: 600;
+  margin-top: 10px;
+  display: block;
+}
 #finderForm input,
-#finderForm textarea{
-  width:100%;
-  padding:12px 14px;
-  border:1px solid #ccd1d6;
-  border-radius:8px;
-  background:#fff;
-  font-size:16px;
+#finderForm textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccd1d6;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
 }
-#finderForm button{
-  margin-top:12px;
-  width:100%;
-  padding:12px 16px;
-  font-weight:700;
-  font-size:16px;
-  background:var(--blue);
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+#finderForm button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 16px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
-#finderForm button:hover{ filter:brightness(.95); }
-
-/* ===== Section / Category Headings ===== */
-.category-header{
-  margin:28px 0 10px;
-  font-size:1.35rem;
-  font-weight:700;
-  border-bottom:2px solid var(--border);
-  padding-bottom:8px;
+#finderForm button:hover {
+  filter: brightness(.95);
 }
 
-/* ===== Results Grid ===== */
-.product-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
-  gap:14px;
-  margin-top:14px;
+/* ===== Section Headers ===== */
+.category-header {
+  margin: 28px 0 10px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* ===== Product Grid ===== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
 }
 
 /* ===== Product Card ===== */
-.product-card{
-  display:flex;
-  gap:12px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:12px;
-  box-shadow:0 1px 4px rgba(0,0,0,.05);
-  transition:box-shadow .15s ease;
+.product-card {
+  display: flex;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition: box-shadow .15s ease;
 }
-.product-card:hover{ box-shadow:0 4px 12px rgba(0,0,0,.08); }
-
-/* Thumbnail (we'll add the <img> next step) */
-.product-thumb{
-  width:88px;
-  height:88px;
-  flex:0 0 88px;
-  border-radius:8px;
-  object-fit:cover;        /* contain if you prefer full image inside */
-  background:#f1f3f5;
-  border:1px solid var(--border);
+.product-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
 }
 
-/* Title & meta */
-.product-title{
-  margin:0 0 6px;
-  font-size:1.05rem;
-  color:var(--blue);
+/* Thumbnail */
+.product-thumb {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f1f3f5;
+  border: 1px solid var(--border);
 }
-.product-meta{
-  font-size:.92rem;
-  color:var(--muted);
-  margin-bottom:6px;
+
+/* Title & Meta */
+.product-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  color: var(--blue);
+}
+.product-meta {
+  font-size: .92rem;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
 
 /* Links */
-.product-links a{
-  color:var(--blue);
-  text-decoration:none;
-  font-weight:600;
+.product-links a {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 600;
 }
-.product-links a:hover{ text-decoration:underline; }
-
-/* Empty state */
-.no-results{
-  color:var(--muted);
-  font-style:italic;
-  margin:6px 0 14px;
+.product-links a:hover {
+  text-decoration: underline;
 }
 
-/* ===== Small screens ===== */
-@media (max-width:420px){
-  html, body{ font-size:16px; }
-  .product-thumb{ width:76px; height:76px; flex-basis:76px; }
+/* Empty State */
+.no-results {
+  color: var(--muted);
+  font-style: italic;
+  margin: 6px 0 14px;
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  background: var(--blue);
+  color: #fff;
+  margin-top: 32px;
+}
+.site-footer .footer-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  flex-wrap: wrap;
+}
+.footer-brand {
+  font-weight: 700;
+  font-size: 1rem;
+}
+.footer-tagline {
+  font-size: 1rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  html, body {
+    font-size: 16px;
+  }
+  .product-thumb {
+    width: 76px;
+    height: 76px;
+    flex-basis: 76px;
+  }
 }
