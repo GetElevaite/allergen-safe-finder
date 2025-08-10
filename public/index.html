@@ -39,6 +39,18 @@
         <input type="number" id="rating_floor" class="form-control" value="4.0" step="0.1" min="0" max="5" />
       </div>
 
+      <!-- NEW: Price range -->
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <label for="min_price" class="form-label">Min Price ($):</label>
+          <input type="number" id="min_price" class="form-control" min="0" step="0.01" placeholder="0" />
+        </div>
+        <div class="col-6">
+          <label for="max_price" class="form-label">Max Price ($):</label>
+          <input type="number" id="max_price" class="form-control" min="0" step="0.01" placeholder="30" />
+        </div>
+      </div>
+
       <div class="mb-3">
         <label for="retailers" class="form-label">Preferred Retailers (comma-separated):</label>
         <input type="text" id="retailers" class="form-control" placeholder="e.g. Amazon, Target" />
@@ -160,6 +172,12 @@
       const notes = (document.getElementById("notes").value || "").trim();
       const rating_floor = Number(document.getElementById("rating_floor")?.value || 4.0);
 
+      // NEW: price range values
+      const min_price = document.getElementById("min_price")?.value;
+      const max_price = document.getElementById("max_price")?.value;
+      const price_min = min_price === "" ? null : Number(min_price);
+      const price_max = max_price === "" ? null : Number(max_price);
+
       const purchase_sites = (document.getElementById("retailers")?.value || "")
         .split(",").map(s => s.trim()).filter(Boolean);
 
@@ -167,7 +185,15 @@
         const res = await fetch("/api/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ allergens, categories, notes, rating_floor, purchase_sites })
+          body: JSON.stringify({
+            allergens,
+            categories,
+            notes,
+            rating_floor,
+            purchase_sites,
+            price_min,
+            price_max
+          })
         });
 
         const data = await res.json();
